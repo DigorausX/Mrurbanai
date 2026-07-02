@@ -280,9 +280,10 @@
                 }
             });
 
-            // 2. Wind & Dew Point Chart
+// 2. Wind & Dew Point Chart (พร้อมเส้นปริมาณฝนที่เปิด-ปิดได้)
             let windSpeeds = dataHourly.hourly.wind_speed_10m;
             let dewPoints = dataHourly.hourly.dew_point_2m;
+            let rainForecasts = dataHourly.hourly.precipitation; // ดึงข้อมูลฝนมาเพิ่ม
 
             const ctxWindDew = document.getElementById('windDewChart').getContext('2d');
             windDewChart = new Chart(ctxWindDew, {
@@ -290,17 +291,60 @@
                 data: {
                     labels: hourlyTimes,
                     datasets: [
-                        { label: 'ความเร็วลม (km/h)', data: windSpeeds, borderColor: '#818cf8', backgroundColor: 'rgba(129, 140, 248, 0.1)', borderWidth: 2, fill: true, yAxisID: 'y' },
-                        { label: 'จุดน้ำค้าง (°C)', data: dewPoints, borderColor: '#2dd4bf', borderDash: [5, 5], borderWidth: 2, yAxisID: 'y1' }
+                        { 
+                            label: 'ความเร็วลม (km/h)', 
+                            data: windSpeeds, 
+                            borderColor: '#818cf8', 
+                            backgroundColor: 'rgba(129, 140, 248, 0.1)', 
+                            borderWidth: 2, 
+                            fill: true, 
+                            yAxisID: 'y' 
+                        },
+                        { 
+                            label: 'จุดน้ำค้าง (°C)', 
+                            data: dewPoints, 
+                            borderColor: '#2dd4bf', 
+                            borderDash: [5, 5], 
+                            borderWidth: 2, 
+                            yAxisID: 'y1' 
+                        },
+                        // --- เพิ่มเส้นปริมาณฝนตรงนี้ ---
+                        { 
+                            label: 'ปริมาณฝน (mm)', 
+                            data: rainForecasts, 
+                            borderColor: '#0ea5e9', // สีฟ้าเข้ม
+                            backgroundColor: 'rgba(14, 165, 233, 0.4)', 
+                            borderWidth: 3, 
+                            fill: true,
+                            yAxisID: 'y2', // แยกแกน Y ไม่ให้ไปกวนสเกลของลม
+                            hidden: true // ตั้งค่าเป็น true เพื่อ "ซ่อน" ไว้ก่อนตอนเปิดเว็บ (คลิกเพื่อเปิดดูทีหลังได้)
+                        }
                     ]
                 },
                 options: { 
                     scales: { 
                         x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {maxTicksLimit: 12} }, 
                         y: { type: 'linear', display: true, position: 'left', title: {display:true, text:'ความเร็ว (km/h)'} },
-                        y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display:true, text:'อุณหภูมิ (°C)'} }
+                        y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display:true, text:'อุณหภูมิ (°C)'} },
+                        y2: { type: 'linear', display: false, position: 'right', min: 0 } // แกนล่องหนสำหรับฝน
                     },
-                    plugins: { legend: { labels: { color: '#e2e8f0' } } },
+                    plugins: { 
+                        legend: { 
+                            labels: { color: '#e2e8f0' },
+                            onClick: function(e, legendItem, legend) {
+                                // เปิดการทำงานคลิกเพื่อซ่อน/แสดง ปกติของ Chart.js
+                                const index = legendItem.datasetIndex;
+                                const ci = legend.chart;
+                                if (ci.isDatasetVisible(index)) {
+                                    ci.hide(index);
+                                    legendItem.hidden = true;
+                                } else {
+                                    ci.show(index);
+                                    legendItem.hidden = false;
+                                }
+                            }
+                        } 
+                    },
                     animation: false
                 }
             });
