@@ -288,6 +288,8 @@
             document.getElementById('b1-temp').innerText = d1.temperature_2m + "°C";
             document.getElementById('b1-rh').innerText = d1.relative_humidity_2m + "%";
             document.getElementById('b1-rh-bar').style.width = d1.relative_humidity_2m + "%";
+            document.getElementById('b1-wind').innerText = d1.wind_speed_10m.toFixed(1) + "km/h";
+            document.getElementById('b1-dir').innerText = getWindDir(d1.wind_direction_10m);
 
             // --- UI UPDATE: BOX 2 (WIND) ---
             let d2 = apiData[curMaxWind.distIdx].current;
