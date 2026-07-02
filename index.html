@@ -11,65 +11,46 @@
     <style>
         body { font-family: 'Prompt', sans-serif; background-color: #040814; color: #f8fafc; overflow-x: hidden; }
         .glass-card { background: rgba(4, 12, 28, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(6, 182, 212, 0.15); border-radius: 12px; box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.05), 0 4px 30px rgba(0, 0, 0, 0.5); }
-        .mini-card { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 8px; }
+        .mini-card { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 4px; }
         .mono-text { font-family: 'Share Tech Mono', monospace; }
         .log-line { border-left: 2px solid #06b6d4; padding-left: 8px; margin-bottom: 4px; font-size: 11px; color: #94a3b8; }
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #040814; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .radar-spinner { width: 60px; height: 60px; border: 4px solid rgba(6, 182, 212, 0.2); border-top-color: #06b6d4; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .bg-grid { background-image: linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px); background-size: 30px 30px; }
-        /* Scrollbar custom */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
-        ::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 3px; }
     </style>
 </head>
 <body id="capture-area" class="bg-grid flex flex-col min-h-screen">
-
     <div id="loading" class="loading-overlay">
         <div class="radar-spinner mb-4"></div>
         <p class="text-cyan-500 font-bold tracking-widest mono-text animate-pulse">SYNCING 50-SECTOR TELEMETRY...</p>
     </div>
 
-    <nav class="glass-card sticky top-0 z-50 border-b border-cyan-900 mx-4 mt-4 mb-2 rounded-xl" data-html2canvas-ignore="false">
-        <div class="w-full px-6 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-xl font-bold flex items-center tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                    <i class="fa-solid fa-satellite-dish mr-3 text-cyan-400 animate-pulse"></i> BKK TACTICAL WEATHER COMMAND
-                </h1>
-                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-clock mr-1 text-cyan-700"></i> SYS-TIME: <span id="sys-time" class="mono-text text-cyan-200">SYNCING...</span></p>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="hidden md:block text-[10px] text-cyan-500 mono-text text-right mr-2 leading-tight">
-                    LAT: 13.75° N <br> LON: 100.50° E
-                </div>
-                <button onclick="exportDashboard()" id="btn-export" class="bg-cyan-900/50 hover:bg-cyan-800 border border-cyan-500/50 text-cyan-300 font-bold py-1.5 px-4 rounded transition-all text-xs flex items-center" data-html2canvas-ignore="true">
-                    <i class="fa-solid fa-camera mr-2"></i> SNAPSHOT
-                </button>
-            </div>
+    <nav class="glass-card sticky top-0 z-50 border-b border-cyan-900 mx-4 mt-4 mb-2 rounded-xl">
+        <div class="w-full px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                <i class="fa-solid fa-satellite-dish mr-3 text-cyan-400"></i> BKK TACTICAL WEATHER COMMAND
+            </h1>
+            <button onclick="exportDashboard()" id="btn-export" class="bg-cyan-900/50 text-cyan-300 py-1 px-4 rounded text-xs border border-cyan-500/50">SNAPSHOT</button>
         </div>
     </nav>
 
     <main class="w-full px-4 pb-6 flex-grow flex flex-col gap-4">
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            
-            <div class="glass-card p-4 border-l-4 border-l-cyan-400 relative overflow-hidden flex flex-col justify-between">
-                <i class="fa-solid fa-cloud-showers-heavy absolute -top-4 -right-4 text-cyan-500/10 text-8xl transform -rotate-12"></i>
-                <div class="relative z-10">
-                    <p class="text-[10px] text-cyan-500 font-bold mb-1 uppercase tracking-widest"><i class="fa-solid fa-crosshairs mr-1"></i> LIVE: ปริมาณน้ำฝนปัจจุบันสูงสุด</p>
-                    <h3 class="text-xl font-bold text-white mb-2" id="b1-dist">--</h3>
-                    <div class="flex items-end gap-2 mb-3">
-                        <span class="text-4xl font-bold text-cyan-400 mono-text leading-none" id="b1-rain">0.0</span>
-                        <span class="text-xs text-cyan-500 font-bold mb-1">mm/h</span>
-                    </div>
+            <!-- Box 1 -->
+            <div class="glass-card p-4 border-l-4 border-l-cyan-400 flex flex-col justify-between">
+                <p class="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">LIVE: ปริมาณน้ำฝนปัจจุบันสูงสุด</p>
+                <h3 class="text-xl font-bold text-white mb-2" id="b1-dist">--</h3>
+                <div class="flex items-end gap-2 mb-3">
+                    <span class="text-4xl font-bold text-cyan-400 mono-text" id="b1-rain">0.0</span>
+                    <span class="text-xs text-cyan-500 font-bold mb-1">mm/h</span>
                 </div>
-                <div class="grid grid-cols-3 gap-2 mt-auto relative z-10">
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">จุดน้ำค้าง</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-dew">--°C</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">อุณหภูมิ</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-temp">--°C</span></div>
-                    <div class="mini-card text-center relative"><span class="text-[10px] text-slate-500">ความชื้น</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-rh">--%</span>
-                        <div class="w-full bg-slate-800 h-1 mt-1 rounded"><div class="bg-cyan-500 h-1 rounded" id="b1-rh-bar" style="width: 0%"></div></div>
-                    </div>
+                <div class="grid grid-cols-5 gap-1">
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ลม</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-wind">--</span></div>
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ทิศ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dir">--</span></div>
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">น้ำค้าง</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dew">--</span></div>
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">อุณหภูมิ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-temp">--</span></div>
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ความชื้น</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-rh">--</span></div>
                 </div>
             </div>
 
