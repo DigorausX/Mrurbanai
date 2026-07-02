@@ -2,206 +2,175 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BKK Storm Command Center (TACTICAL V3)</title>
+    <title>BKK Storm Command Center (LIVE)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- เพิ่ม Library สำหรับถ่ายภาพหน้าเว็บ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Prompt', sans-serif; background-color: #040814; color: #f8fafc; overflow-x: hidden; }
-        .glass-card { background: rgba(4, 12, 28, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(6, 182, 212, 0.15); border-radius: 12px; box-shadow: inset 0 0 20px rgba(6, 182, 212, 0.05), 0 4px 30px rgba(0, 0, 0, 0.5); }
-        .mini-card { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; padding: 4px; }
+        .glass-card { background: rgba(4, 12, 28, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
         .mono-text { font-family: 'Share Tech Mono', monospace; }
-        .log-line { border-left: 2px solid #06b6d4; padding-left: 8px; margin-bottom: 4px; font-size: 11px; color: #94a3b8; }
+        .log-line { border-left: 2px solid #06b6d4; padding-left: 8px; margin-bottom: 4px; font-size: 12px; }
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #040814; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .radar-spinner { width: 60px; height: 60px; border: 4px solid rgba(6, 182, 212, 0.2); border-top-color: #06b6d4; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        .bg-grid { background-image: linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px); background-size: 30px 30px; }
     </style>
 </head>
-<body id="capture-area" class="bg-grid flex flex-col min-h-screen">
+<!-- ห่อหุ้มพื้นที่ทั้งหมดด้วย id="capture-area" เพื่อระบุขอบเขตการถ่ายภาพ -->
+<body id="capture-area">
+
+    <!-- Loading Screen -->
     <div id="loading" class="loading-overlay">
         <div class="radar-spinner mb-4"></div>
-        <p class="text-cyan-500 font-bold tracking-widest mono-text animate-pulse">SYNCING 50-SECTOR TELEMETRY...</p>
+        <p class="text-cyan-500 font-bold tracking-widest mono-text animate-pulse">SCANNING PRECIPITATION RADAR...</p>
+        <p class="text-xs text-slate-500 mt-2">กำลังดึงข้อมูลหยาดน้ำฟ้า 50 เขต กรุงเทพมหานคร</p>
     </div>
 
-    <nav class="glass-card sticky top-0 z-50 border-b border-cyan-900 mx-4 mt-4 mb-2 rounded-xl">
-        <div class="w-full px-6 py-3 flex justify-between items-center">
-            <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                <i class="fa-solid fa-satellite-dish mr-3 text-cyan-400"></i> BKK TACTICAL WEATHER COMMAND
-            </h1>
-            <button onclick="exportDashboard()" id="btn-export" class="bg-cyan-900/50 text-cyan-300 py-1 px-4 rounded text-xs border border-cyan-500/50">SNAPSHOT</button>
+    <nav class="glass-card sticky top-0 z-50 border-b border-cyan-900 m-4 rounded-xl" data-html2canvas-ignore="false">
+        <div class="w-full px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold flex items-center tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                    <i class="fa-solid fa-cloud-showers-water mr-3 text-cyan-400 animate-pulse"></i> BKK AIR FORCE ONE: STORM WATCH
+                </h1>
+                <p class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-clock mr-1"></i> SYSTEM TIME: <span id="sys-time">SYNCING...</span></p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-sm font-bold text-cyan-500 mono-text border border-cyan-500/50 px-3 py-1 rounded bg-cyan-950/30">
+                    LIVE TELEMETRY ACTIVE
+                </div>
+                <!-- ปุ่มสำหรับ Export รูปภาพ -->
+                <button onclick="exportDashboard()" id="btn-export" class="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-1.5 px-4 rounded shadow-lg shadow-cyan-900/50 transition-all text-sm flex items-center" data-html2canvas-ignore="true">
+                    <i class="fa-solid fa-camera mr-2"></i> ส่งออกภาพ
+                </button>
+            </div>
         </div>
     </nav>
 
-    <main class="w-full px-4 pb-6 flex-grow flex flex-col gap-4">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <!-- Box 1 -->
-            <div class="glass-card p-4 border-l-4 border-l-cyan-400 flex flex-col justify-between">
-                <p class="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">LIVE: ปริมาณน้ำฝนปัจจุบันสูงสุด</p>
-                <h3 class="text-xl font-bold text-white mb-2" id="b1-dist">--</h3>
-                <div class="flex items-end gap-2 mb-3">
-                    <span class="text-4xl font-bold text-cyan-400 mono-text" id="b1-rain">0.0</span>
-                    <span class="text-xs text-cyan-500 font-bold mb-1">mm/h</span>
-                </div>
-                <div class="grid grid-cols-5 gap-1">
-                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ลม</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-wind">--</span></div>
-                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ทิศ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dir">--</span></div>
-                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">น้ำค้าง</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dew">--</span></div>
-                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">อุณหภูมิ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-temp">--</span></div>
-                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ความชื้น</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-rh">--</span></div>
-                </div>
-            </div>
-
-            <div class="glass-card p-4 border-l-4 border-l-blue-500 relative overflow-hidden flex flex-col justify-between">
-                <i class="fa-solid fa-wind absolute -top-4 -right-4 text-blue-500/10 text-8xl transform rotate-12"></i>
-                <div class="relative z-10">
-                    <p class="text-[10px] text-blue-500 font-bold mb-1 uppercase tracking-widest"><i class="fa-solid fa-crosshairs mr-1"></i> LIVE: ความเร็วลมปัจจุบันสูงสุด</p>
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-xl font-bold text-white" id="b2-dist">--</h3>
-                        <span class="text-xs font-bold text-blue-200 bg-blue-900/60 border border-blue-500/30 px-2 py-0.5 rounded mono-text flex items-center gap-1"><i class="fa-regular fa-compass"></i> <span id="b2-dir">--</span></span>
-                    </div>
-                    <div class="flex items-end gap-2 mb-3">
-                        <span class="text-4xl font-bold text-blue-400 mono-text leading-none" id="b2-wind">0.0</span>
-                        <span class="text-xs text-blue-500 font-bold mb-1">km/h</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-4 gap-2 mt-auto relative z-10">
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">ฝน</span><br><span class="text-blue-200 font-bold mono-text text-sm" id="b2-rain">--</span></div>
-                    <div class="mini-card text-center relative"><span class="text-[10px] text-slate-500">โอกาสฝน</span><br><span class="text-blue-200 font-bold mono-text text-sm" id="b2-prob">--%</span>
-                        <div class="w-full bg-slate-800 h-1 mt-1 rounded"><div class="bg-blue-500 h-1 rounded" id="b2-prob-bar" style="width: 0%"></div></div>
-                    </div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">น้ำค้าง</span><br><span class="text-blue-200 font-bold mono-text text-sm" id="b2-dew">--°C</span></div>
-                    <div class="mini-card text-center relative"><span class="text-[10px] text-slate-500">ความชื้น</span><br><span class="text-blue-200 font-bold mono-text text-sm" id="b2-rh">--%</span>
-                        <div class="w-full bg-slate-800 h-1 mt-1 rounded"><div class="bg-blue-500 h-1 rounded" id="b2-rh-bar" style="width: 0%"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card p-4 border-l-4 border-l-teal-400 relative overflow-hidden flex flex-col justify-between">
-                <i class="fa-solid fa-cloud-bolt absolute -top-4 -right-4 text-teal-500/10 text-8xl"></i>
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-1">
-                        <p class="text-[10px] text-teal-500 font-bold uppercase tracking-widest"><i class="fa-solid fa-radar mr-1"></i> 24H: โอกาสเกิดฝนสูงสุด</p>
-                        <span class="text-[10px] font-bold text-teal-200 bg-teal-900/60 px-2 py-0.5 rounded mono-text border border-teal-500/30 shadow-[0_0_8px_rgba(45,212,191,0.3)]" id="b3-datetime">-- | -- น.</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2" id="b3-dist">--</h3>
-                    <div class="flex items-end gap-2 mb-1">
-                        <span class="text-4xl font-bold text-teal-400 mono-text leading-none" id="b3-prob">0</span>
-                        <span class="text-xs text-teal-500 font-bold mb-1">%</span>
-                    </div>
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full mb-3 overflow-hidden shadow-inner">
-                        <div class="bg-gradient-to-r from-teal-600 to-teal-300 h-full rounded-full" id="b3-main-bar" style="width: 0%"></div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-4 gap-2 mt-auto relative z-10">
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">ลม(km/h)</span><br><span class="text-teal-200 font-bold mono-text text-sm" id="b3-wind">--</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">ทิศทางลม</span><br><span class="text-teal-200 font-bold mono-text text-sm" id="b3-dir">--</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">น้ำค้าง</span><br><span class="text-teal-200 font-bold mono-text text-sm" id="b3-dew">--°C</span></div>
-                    <div class="mini-card text-center relative"><span class="text-[10px] text-slate-500">ความชื้น</span><br><span class="text-teal-200 font-bold mono-text text-sm" id="b3-rh">--%</span></div>
-                </div>
-            </div>
-
-            <div class="glass-card p-4 border-l-4 border-l-orange-500 relative overflow-hidden flex flex-col justify-between">
-                <i class="fa-solid fa-temperature-arrow-up absolute -top-4 -right-4 text-orange-500/10 text-8xl transform rotate-12"></i>
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-1">
-                        <p class="text-[10px] text-orange-500 font-bold uppercase tracking-widest"><i class="fa-solid fa-radar mr-1"></i> 24H: ดัชนีความร้อนสูงสุด</p>
-                        <span class="text-[10px] font-bold text-orange-200 bg-orange-900/60 px-2 py-0.5 rounded mono-text border border-orange-500/30 shadow-[0_0_8px_rgba(249,115,22,0.3)]" id="b4-datetime">-- | -- น.</span>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2" id="b4-dist">--</h3>
-                    <div class="flex items-end gap-2 mb-1">
-                        <span class="text-4xl font-bold text-orange-400 mono-text leading-none" id="b4-heat">0.0</span>
-                        <span class="text-xs text-orange-500 font-bold mb-1">°C</span>
-                    </div>
-                    <div class="w-full flex h-1.5 rounded-full mb-3 overflow-hidden shadow-inner gap-0.5">
-                        <div class="bg-green-500 flex-1"></div><div class="bg-yellow-400 flex-1"></div><div class="bg-orange-500 flex-1"></div><div class="bg-red-500 flex-1"></div>
-                        <div class="absolute w-2 h-3 bg-white border border-black transform -translate-x-1 -translate-y-0.5 rounded shadow" id="b4-threat-marker" style="left: 0%"></div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-4 gap-2 mt-auto relative z-10">
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">อุณหภูมิจริง</span><br><span class="text-orange-200 font-bold mono-text text-sm" id="b4-temp">--°C</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">น้ำค้าง</span><br><span class="text-orange-200 font-bold mono-text text-sm" id="b4-dew">--°C</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">ลม(km/h)</span><br><span class="text-orange-200 font-bold mono-text text-sm" id="b4-wind">--</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">ความชื้น</span><br><span class="text-orange-200 font-bold mono-text text-sm" id="b4-rh">--%</span></div>
-                </div>
+    <main class="w-full px-8 mt-4 pb-12">
+        <!-- Alert Box -->
+        <div id="alert-box" class="bg-blue-950/40 border border-blue-500/40 p-4 rounded-lg mb-6 flex justify-between items-center shadow-lg shadow-blue-950/50">
+            <div class="flex items-center">
+                <div class="animate-pulse w-3 h-3 bg-cyan-400 rounded-full mr-4 shadow-[0_0_12px_#06b6d4]"></div>
+                <p class="text-cyan-100 text-sm"><strong class="text-cyan-400">STATUS:</strong> ปริมาณฝนสูงสุด ณ ปัจจุบัน: <span id="alert-district" class="text-white font-bold">--</span> (<span id="alert-rain">--</span> mm/h)</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="glass-card p-4">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-xs text-slate-300 uppercase tracking-widest"><i class="fa-solid fa-chart-line text-teal-400 mr-2"></i>โอกาสฝน 24H (BKK CENTER)</h3>
-                </div>
-                <div class="relative w-full h-[200px]"><canvas id="rainForecastChart"></canvas></div>
+        <!-- 4 Key Metrics (Current) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="glass-card p-6 border-l-4 border-l-cyan-400">
+                <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1"><i class="fa-solid fa-droplet mr-2"></i>ปริมาณฝนรวม (กทม. เฉลี่ย)</p>
+                <h3 class="text-4xl font-bold text-cyan-400 mono-text"><span id="avg-rain">--</span><span class="text-xl text-slate-500 ml-1">mm/h</span></h3>
             </div>
-            <div class="glass-card p-4">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-xs text-slate-300 uppercase tracking-widest"><i class="fa-solid fa-list-ol text-cyan-500 mr-2"></i>TOP 10 ฝน/ลม (LIVE)</h3>
-                </div>
-                <div class="relative w-full h-[200px]"><canvas id="rainRankChart"></canvas></div>
+            <div class="glass-card p-6 border-l-4 border-l-blue-500">
+                <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1"><i class="fa-solid fa-wind mr-2"></i>ความเร็วลมสูงสุด</p>
+                <h3 class="text-4xl font-bold text-blue-400 mono-text"><span id="max-wind">--</span><span class="text-xl text-slate-500 ml-1">km/h</span></h3>
+                <p class="text-xs text-blue-300 mt-1">ทิศทาง: <span id="wind-dir">--</span></p>
+            </div>
+            <div class="glass-card p-6 border-l-4 border-l-teal-400">
+                <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1"><i class="fa-solid fa-temperature-arrow-down mr-2"></i>จุดน้ำค้าง (Dew Point)</p>
+                <h3 class="text-4xl font-bold text-teal-400 mono-text"><span id="avg-dew">--</span><span class="text-xl text-slate-500 ml-1">°C</span></h3>
+                <p class="text-xs text-teal-300 mt-1">เกณฑ์ก่อตัวเมฆฝน</p>
+            </div>
+            <div class="glass-card p-6 border-l-4 border-l-indigo-400">
+                <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1"><i class="fa-solid fa-location-crosshairs mr-2"></i>เขตที่ฝนตกหนักสุด</p>
+                <h3 class="text-2xl font-bold text-white tracking-wide mt-2" id="max-rain-district">--</h3>
             </div>
         </div>
 
-        <div class="glass-card p-3 border border-cyan-900 bg-black/60 shadow-2xl mt-auto">
-            <div class="flex justify-between items-center mb-2 px-1">
-                <h4 class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mono-text flex items-center">
-                    <i class="fa-solid fa-terminal mr-2 animate-pulse"></i> LIVE SYSTEM LOGS
+        <!-- 24H Forecast Charts -->
+        <h2 class="text-xl font-bold text-cyan-400 mb-4 border-b border-cyan-900 pb-2"><i class="fa-solid fa-satellite mr-2"></i>พยากรณ์ล่วงหน้า 24 ชั่วโมง (24H FORECAST)</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="glass-card p-6">
+                <h3 class="font-bold text-md mb-4 text-slate-200"><i class="fa-solid fa-cloud-rain text-cyan-400 mr-2"></i>โอกาสเกิดฝน (%) vs ปริมาณน้ำฝน (mm/h)</h3>
+                <div class="relative w-full h-[300px]"><canvas id="rainForecastChart"></canvas></div>
+            </div>
+            <div class="glass-card p-6">
+                <h3 class="font-bold text-md mb-4 text-slate-200"><i class="fa-solid fa-wind text-blue-400 mr-2"></i>ความเร็วลม (km/h) vs จุดน้ำค้าง (°C)</h3>
+                <div class="relative w-full h-[300px]"><canvas id="windDewChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Ranking and Logs -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="glass-card p-6 lg:col-span-2">
+                <h3 class="font-bold text-md mb-4 text-slate-200"><i class="fa-solid fa-cloud-rain text-cyan-400 mr-2"></i>แนวโน้มโอกาสเกิดฝน 24 ชั่วโมง (%)</h3>
+                <div class="relative w-full h-[300px]"><canvas id="rainRankChart"></canvas></div>
+            </div>
+            
+            <div class="glass-card p-4 border border-cyan-900 bg-cyan-950/20 shadow-2xl flex flex-col">
+                <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-3 mono-text flex items-center">
+                    <i class="fa-solid fa-terminal mr-2 animate-pulse"></i> METEOROLOGICAL LOG
                 </h4>
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 rounded-full bg-red-500"></div><div class="w-2 h-2 rounded-full bg-yellow-500"></div><div class="w-2 h-2 rounded-full bg-green-500"></div>
+                <div id="terminal-log" class="mono-text text-cyan-200 bg-black/60 p-3 rounded border border-cyan-900 flex-grow overflow-y-auto" style="font-size: 11px; line-height: 1.6;">
+                    <div class="log-line text-blue-400">[SYSTEM] Initializing connection to Open-Meteo Radar...</div>
                 </div>
             </div>
-            <div id="terminal-log" class="mono-text h-[80px] overflow-y-auto bg-[#02040a] border border-cyan-900/30 rounded p-2 shadow-inner" style="line-height: 1.5;">
-                <div class="log-line text-cyan-600">[SYSTEM] Initialization sequence started...</div>
-            </div>
         </div>
-
     </main>
 
     <script>
-        // System Clock
+        // Clock Update
         setInterval(() => {
             const now = new Date();
-            document.getElementById('sys-time').innerText = now.toLocaleDateString('th-TH') + " " + now.toLocaleTimeString('th-TH',{hour12:false});
+            document.getElementById('sys-time').innerText = now.toLocaleDateString('th-TH') + " " + now.toLocaleTimeString('th-TH');
         }, 1000);
 
-        // Export Function
+        function addLog(msg, colorClass) {
+            const log = document.getElementById('terminal-log');
+            log.innerHTML += `<div class="log-line ${colorClass}">[${new Date().toLocaleTimeString('en-US',{hour12:false})}] ${msg}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // --- ฟังก์ชัน Export รูปภาพ ---
         function exportDashboard() {
             const btn = document.getElementById('btn-export');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>PROCESSING...';
-            btn.classList.add('opacity-50');
+            
+            // เปลี่ยนหน้าตาปุ่มตอนกำลังประมวลผล
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังบันทึก...';
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
 
+            // ใช้ html2canvas ถ่ายภาพพื้นที่ body
             html2canvas(document.getElementById('capture-area'), {
-                backgroundColor: '#040814', scale: 2, logging: false, useCORS: true
+                backgroundColor: '#040814', // สีพื้นหลังให้ตรงกับธีม
+                scale: 2, // เพิ่มความละเอียดภาพ (2x)
+                logging: false,
+                useCORS: true // อนุญาตให้ดึงข้อมูลข้ามโดเมน (กันกราฟแหว่ง)
             }).then(canvas => {
+                // สร้างลิงก์ดาวน์โหลดจำลอง
                 const link = document.createElement('a');
-                link.download = `BKK_TACTICAL_${new Date().toISOString().slice(0,10)}.png`;
+                // ตั้งชื่อไฟล์พร้อมวันที่
+                const dateStr = new Date().toISOString().slice(0,10);
+                link.download = `BKK_STORM_REPORT_${dateStr}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
+
+                // คืนค่าปุ่มกลับเป็นเหมือนเดิม
                 btn.innerHTML = originalHTML;
-                btn.classList.remove('opacity-50');
-                systemLog("SNAPSHOT SAVED TO LOCAL STORAGE", "text-green-400");
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                addLog("Snapshot exported to local storage successfully.", "text-green-400");
+            }).catch(err => {
+                console.error("Export failed: ", err);
+                addLog("ERROR: Failed to export snapshot.", "text-red-500");
+                btn.innerHTML = originalHTML;
             });
         }
 
-        // Terminal Log Function
-        function systemLog(msg, colorClass = "text-cyan-400") {
-            const logWindow = document.getElementById('terminal-log');
-            const timeStr = new Date().toLocaleTimeString('en-US', {hour12:false});
-            logWindow.innerHTML += `<div class="log-line ${colorClass}">[${timeStr}] ${msg}</div>`;
-            logWindow.scrollTop = logWindow.scrollHeight; // Auto scroll
-        }
-
-        function getWindDir(deg) {
-            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        // Convert Degree to Compass Direction
+        function getWindDirection(deg) {
+            const dirs = ['เหนือ (N)', 'ตะวันออกเฉียงเหนือ (NE)', 'ตะวันออก (E)', 'ตะวันออกเฉียงใต้ (SE)', 'ใต้ (S)', 'ตะวันตกเฉียงใต้ (SW)', 'ตะวันตก (W)', 'ตะวันตกเฉียงเหนือ (NW)'];
             return dirs[Math.round(deg / 45) % 8];
         }
 
-        Chart.defaults.color = '#475569'; Chart.defaults.font.family = "'Prompt', sans-serif"; Chart.defaults.maintainAspectRatio = false;
+        // Chart.js Global Config
+        Chart.defaults.color = '#94a3b8'; 
+        Chart.defaults.font.family = "'Prompt', sans-serif"; 
+        Chart.defaults.maintainAspectRatio = false;
 
+        // BKK 50 Districts Coordinates
         const bkkDistricts = [
             {name: "พระนคร", lat: 13.76, lon: 100.49}, {name: "ป้อมปราบฯ", lat: 13.75, lon: 100.51}, {name: "ปทุมวัน", lat: 13.74, lon: 100.52}, {name: "บางรัก", lat: 13.73, lon: 100.52}, {name: "สาทร", lat: 13.71, lon: 100.52},
             {name: "ยานนาวา", lat: 13.69, lon: 100.54}, {name: "คลองเตย", lat: 13.71, lon: 100.58}, {name: "วัฒนา", lat: 13.74, lon: 100.58}, {name: "ราชเทวี", lat: 13.76, lon: 100.53}, {name: "พญาไท", lat: 13.78, lon: 100.54},
@@ -215,158 +184,218 @@
             {name: "ลาดกระบัง", lat: 13.72, lon: 100.78}, {name: "สะพานสูง", lat: 13.76, lon: 100.68}, {name: "คันนายาว", lat: 13.81, lon: 100.67}, {name: "สัมพันธวงศ์", lat: 13.73, lon: 100.50}, {name: "บางคอแหลม", lat: 13.69, lon: 100.50}
         ];
 
-        async function fetchAllData() {
+        async function fetchRealTimeData() {
             try {
-                systemLog("DOWNLOADING SATELLITE TELEMETRY (50 SECTORS)...", "text-blue-400");
+                addLog("Connecting to Precipitation satellites...", "text-cyan-400");
                 const lats = bkkDistricts.map(d => d.lat).join(',');
                 const lons = bkkDistricts.map(d => d.lon).join(',');
                 
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=precipitation,wind_speed_10m,wind_direction_10m,dew_point_2m,temperature_2m,relative_humidity_2m&hourly=precipitation_probability,apparent_temperature,wind_speed_10m,wind_direction_10m,dew_point_2m,temperature_2m,relative_humidity_2m,precipitation&forecast_hours=24&timezone=Asia/Bangkok`;
+                // 1. Current Data (50 Districts)
+                const currentUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=precipitation,wind_speed_10m,wind_direction_10m,dew_point_2m&timezone=Asia/Bangkok`;
+                const resCurrent = await fetch(currentUrl);
+                const dataCurrent = await resCurrent.json();
                 
-                const res = await fetch(url);
-                const data = await res.json();
+                // 2. Hourly Data (24H Forecast for Center BKK)
+                const hourlyUrl = `https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.50&hourly=precipitation_probability,precipitation,wind_speed_10m,dew_point_2m&forecast_hours=24&timezone=Asia/Bangkok`;
+                const resHourly = await fetch(hourlyUrl);
+                const dataHourly = await resHourly.json();
 
-                processTacticalData(data);
+                processLiveData(dataCurrent, dataHourly);
                 document.getElementById('loading').style.display = 'none';
-                systemLog("TELEMETRY SYNC COMPLETE. DASHBOARD UPDATED.", "text-green-400");
+                addLog("Radar sweep complete. Displays updated.", "text-green-400");
             } catch (error) {
-                console.error("Fetch Error:", error);
-                document.getElementById('loading').innerHTML = `<p class='text-red-500 font-bold'>OFFLINE: API CONNECTION FAILED</p>`;
-                systemLog("CRITICAL ERROR: SATELLITE UPLINK FAILED.", "text-red-500");
+                addLog("RADAR OFFLINE: " + error.message, "text-red-500");
             }
         }
 
-        let rainFcstChart, rankChart;
+        let rainFcstChart, windDewChart, rankChart;
 
-        function processTacticalData(apiData) {
-            let curMaxRain = { val: -1, distIdx: 0 };
-            let curMaxWind = { val: -1, distIdx: 0 };
-            let fcstMaxProb = { val: -1, distIdx: 0, hrIdx: 0 };
-            let fcstMaxHeat = { val: -99, distIdx: 0, hrIdx: 0 };
-
-            let currentList = [];
-
-            apiData.forEach((site, i) => {
-                let cur = site.current;
-                let hr = site.hourly;
-                
-                currentList.push({ name: bkkDistricts[i].name, rain: cur.precipitation, wind: cur.wind_speed_10m });
-
-                if(cur.precipitation > curMaxRain.val) { curMaxRain = { val: cur.precipitation, distIdx: i }; }
-                if(cur.wind_speed_10m > curMaxWind.val) { curMaxWind = { val: cur.wind_speed_10m, distIdx: i }; }
-
-                for(let h=0; h<24; h++) {
-                    if(hr.precipitation_probability[h] > fcstMaxProb.val) { fcstMaxProb = { val: hr.precipitation_probability[h], distIdx: i, hrIdx: h }; }
-                    if(hr.apparent_temperature[h] > fcstMaxHeat.val) { fcstMaxHeat = { val: hr.apparent_temperature[h], distIdx: i, hrIdx: h }; }
-                }
+        function processLiveData(dataCurrent, dataHourly) {
+            // Processing 50 Districts
+            let liveDistricts = bkkDistricts.map((d, index) => {
+                let apiData = dataCurrent[index].current;
+                return {
+                    name: d.name,
+                    rain: apiData.precipitation,
+                    windSpeed: apiData.wind_speed_10m,
+                    windDir: apiData.wind_direction_10m,
+                    dew: apiData.dew_point_2m
+                };
             });
 
-            // --- UI UPDATE: BOX 1 (RAIN) ---
-            let d1 = apiData[curMaxRain.distIdx].current;
-            document.getElementById('b1-dist').innerText = curMaxRain.val > 0 ? "เขต" + bkkDistricts[curMaxRain.distIdx].name : "ไม่มีฝนตก (CLEAR)";
-            document.getElementById('b1-rain').innerText = d1.precipitation;
-            document.getElementById('b1-dew').innerText = d1.dew_point_2m + "°C";
-            document.getElementById('b1-temp').innerText = d1.temperature_2m + "°C";
-            document.getElementById('b1-rh').innerText = d1.relative_humidity_2m + "%";
-            document.getElementById('b1-rh-bar').style.width = d1.relative_humidity_2m + "%";
-            document.getElementById('b1-wind').innerText = d1.wind_speed_10m.toFixed(1) + "km/h";
-            document.getElementById('b1-dir').innerText = getWindDir(d1.wind_direction_10m);
+            // Metrics Logic
+            let totalRain = 0, totalDew = 0;
+            let maxRain = -1, maxWind = -1;
+            let maxRainDist = "--", windDirOfMax = "--";
 
-            // --- UI UPDATE: BOX 2 (WIND) ---
-            let d2 = apiData[curMaxWind.distIdx].current;
-            let d2Hr = apiData[curMaxWind.distIdx].hourly;
-            document.getElementById('b2-dist').innerText = "เขต" + bkkDistricts[curMaxWind.distIdx].name;
-            document.getElementById('b2-wind').innerText = d2.wind_speed_10m.toFixed(1);
-            document.getElementById('b2-dir').innerText = getWindDir(d2.wind_direction_10m);
-            document.getElementById('b2-rain').innerText = d2.precipitation + "mm";
-            document.getElementById('b2-prob').innerText = d2Hr.precipitation_probability[0] + "%";
-            document.getElementById('b2-prob-bar').style.width = d2Hr.precipitation_probability[0] + "%";
-            document.getElementById('b2-dew').innerText = d2.dew_point_2m + "°C";
-            document.getElementById('b2-rh').innerText = d2.relative_humidity_2m + "%";
-            document.getElementById('b2-rh-bar').style.width = d2.relative_humidity_2m + "%";
+            liveDistricts.forEach(d => {
+                totalRain += d.rain;
+                totalDew += d.dew;
+                if (d.rain > maxRain) { maxRain = d.rain; maxRainDist = d.name; }
+                if (d.windSpeed > maxWind) { maxWind = d.windSpeed; windDirOfMax = getWindDirection(d.windDir); }
+            });
 
-            // --- UI UPDATE: BOX 3 (PROB) ---
-            let d3Hr = apiData[fcstMaxProb.distIdx].hourly;
-            let d3Date = new Date(d3Hr.time[fcstMaxProb.hrIdx]);
-            document.getElementById('b3-datetime').innerText = `${d3Date.toLocaleDateString('th-TH',{day:'numeric',month:'short'})} | ${d3Date.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} น.`;
-            document.getElementById('b3-dist').innerText = "เขต" + bkkDistricts[fcstMaxProb.distIdx].name;
-            document.getElementById('b3-prob').innerText = fcstMaxProb.val;
-            document.getElementById('b3-main-bar').style.width = fcstMaxProb.val + "%";
-            document.getElementById('b3-wind').innerText = d3Hr.wind_speed_10m[fcstMaxProb.hrIdx].toFixed(1);
-            document.getElementById('b3-dir').innerText = getWindDir(d3Hr.wind_direction_10m[fcstMaxProb.hrIdx]);
-            document.getElementById('b3-dew').innerText = d3Hr.dew_point_2m[fcstMaxProb.hrIdx] + "°C";
-            document.getElementById('b3-rh').innerText = d3Hr.relative_humidity_2m[fcstMaxProb.hrIdx] + "%";
+            const avgRain = (totalRain / 50).toFixed(2);
+            const avgDew = (totalDew / 50).toFixed(1);
 
-            // --- UI UPDATE: BOX 4 (HEAT) ---
-            let d4Hr = apiData[fcstMaxHeat.distIdx].hourly;
-            let d4Date = new Date(d4Hr.time[fcstMaxHeat.hrIdx]);
-            document.getElementById('b4-datetime').innerText = `${d4Date.toLocaleDateString('th-TH',{day:'numeric',month:'short'})} | ${d4Date.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})} น.`;
-            document.getElementById('b4-dist').innerText = "เขต" + bkkDistricts[fcstMaxHeat.distIdx].name;
-            document.getElementById('b4-heat').innerText = fcstMaxHeat.val.toFixed(1);
-            document.getElementById('b4-temp').innerText = d4Hr.temperature_2m[fcstMaxHeat.hrIdx] + "°C";
-            document.getElementById('b4-dew').innerText = d4Hr.dew_point_2m[fcstMaxHeat.hrIdx] + "°C";
-            document.getElementById('b4-wind').innerText = d4Hr.wind_speed_10m[fcstMaxHeat.hrIdx].toFixed(1);
-            document.getElementById('b4-rh').innerText = d4Hr.relative_humidity_2m[fcstMaxHeat.hrIdx] + "%";
+            // Update UI
+            document.getElementById('avg-rain').innerText = avgRain;
+            document.getElementById('max-wind').innerText = maxWind.toFixed(1);
+            document.getElementById('wind-dir').innerText = windDirOfMax;
+            document.getElementById('avg-dew').innerText = avgDew;
+            document.getElementById('max-rain-district').innerText = maxRain > 0 ? "เขต" + maxRainDist : "ไม่พบกลุ่มฝน";
             
-            // Calculate Threat Marker position (Range 27 to 55 for Heat Index)
-            let heatVal = fcstMaxHeat.val;
-            let markerPos = Math.max(0, Math.min(100, ((heatVal - 27) / (55 - 27)) * 100));
-            document.getElementById('b4-threat-marker').style.left = markerPos + "%";
+            document.getElementById('alert-district').innerText = maxRain > 0 ? "เขต" + maxRainDist : "ทุกพื้นที่ (Clear)";
+            document.getElementById('alert-rain').innerText = maxRain > 0 ? maxRain : "0.0";
 
-            if(curMaxRain.val > 0) systemLog(`WARNING: Precip. detected at เขต${bkkDistricts[curMaxRain.distIdx].name} (${curMaxRain.val} mm/h)`, "text-yellow-400");
-            if(fcstMaxProb.val >= 80) systemLog(`ALERT: High rain probability (${fcstMaxProb.val}%) forecast for เขต${bkkDistricts[fcstMaxProb.distIdx].name} at ${d3Date.getHours()}:00`, "text-orange-400");
+            if(maxRain > 0) addLog(`Precipitation detected. Max concentration at เขต${maxRainDist} (${maxRain} mm/h)`, "text-yellow-400");
+            else addLog("No precipitation detected across BMA sectors currently.", "text-cyan-400");
 
-            // --- CHARTS UPDATE ---
-            if(rainFcstChart) { rainFcstChart.destroy(); rankChart.destroy(); }
+            // --- CHARTS ---
+            if(rainFcstChart) { rainFcstChart.destroy(); windDewChart.destroy(); rankChart.destroy(); }
 
-            let centerHourly = apiData[0].hourly; 
-            let times = centerHourly.time.map(t => new Date(t).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}));
-            
+// 1. Rain Forecast Chart (เฉพาะโอกาสเกิดฝน - Area Chart)
+            let hourlyTimes = dataHourly.hourly.time.map(t => new Date(t).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}));
+            let rainProbs = dataHourly.hourly.precipitation_probability;
+
             const ctxRain = document.getElementById('rainForecastChart').getContext('2d');
             rainFcstChart = new Chart(ctxRain, {
-                type: 'line',
+                type: 'line', // เปลี่ยนจาก bar เป็น line
                 data: {
-                    labels: times,
-                    datasets: [{ 
-                        label: 'โอกาสเกิดฝน (%)', 
-                        data: centerHourly.precipitation_probability, 
-                        borderColor: '#2dd4bf', backgroundColor: 'rgba(45, 212, 191, 0.2)', 
-                        borderWidth: 2, fill: true, tension: 0.4, pointRadius: 1
-                    }]
-                },
-                options: { 
-                    scales: { x: { grid: { display: false }, ticks: {maxTicksLimit: 6, font:{size:9}} }, y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {font:{size:9}} } },
-                    plugins: { legend: { display: false } }, animation: false, layout: { padding: 5 }
-                }
-            });
-
-            let sortBy = curMaxRain.val > 0 ? 'rain' : 'wind';
-            let sortedList = currentList.sort((a,b) => b[sortBy] - a[sortBy]).slice(0, 10);
-
-            const ctxRank = document.getElementById('rainRankChart').getContext('2d');
-            rankChart = new Chart(ctxRank, {
-                type: 'bar',
-                data: {
-                    labels: sortedList.map(d => d.name),
+                    labels: hourlyTimes,
                     datasets: [
-                        { label: 'ฝน (mm)', data: sortedList.map(d => d.rain), backgroundColor: '#06b6d4', yAxisID: 'y', borderRadius: 2 },
-                        { label: 'ลม (km/h)', data: sortedList.map(d => d.wind), backgroundColor: '#3b82f6', yAxisID: 'y1', borderRadius: 2 }
+                        { 
+                            label: 'โอกาสเกิดฝน (%)', 
+                            data: rainProbs, 
+                            borderColor: '#3b82f6', // เส้นขอบสีน้ำเงิน
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)', // พื้นหลังสีน้ำเงินโปร่งแสง
+                            borderWidth: 3, 
+                            fill: true, // เปิดการระบายสีใต้กราฟ
+                            tension: 0.4, // ทำให้เส้นโค้งสมูท (Smooth curve)
+                            pointBackgroundColor: '#06b6d4', // สีจุด
+                            pointBorderColor: '#fff',
+                            pointRadius: 3
+                        }
                     ]
                 },
                 options: { 
                     scales: { 
-                        x: { grid: { display: false }, ticks: {font:{size:9}} },
-                        y: { position: 'left', title: {display:false}, ticks: {font:{size:9}} },
-                        y1: { position: 'right', grid: {drawOnChartArea: false}, title: {display:false}, ticks: {font:{size:9}} }
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {maxTicksLimit: 12} }, 
+                        y: { 
+                            type: 'linear', 
+                            display: true, 
+                            position: 'left', 
+                            min: 0, 
+                            max: 100, 
+                            title: {display:true, text:'โอกาส (%)'},
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
                     },
-                    plugins: { legend: { labels: { color: '#cbd5e1', boxWidth: 10, font: {size: 10} } } }, animation: false, layout: { padding: 5 }
+                    plugins: { 
+                        legend: { display: false } // ซ่อนป้ายกำกับด้านบนไปเลย เพราะมีข้อมูลเดียวแล้ว
+                    },
+                    animation: false
+                }
+            });
+
+// 2. Wind & Dew Point Chart (พร้อมเส้นปริมาณฝนที่เปิด-ปิดได้)
+            let windSpeeds = dataHourly.hourly.wind_speed_10m;
+            let dewPoints = dataHourly.hourly.dew_point_2m;
+            let rainForecasts = dataHourly.hourly.precipitation; // ดึงข้อมูลฝนมาเพิ่ม
+
+            const ctxWindDew = document.getElementById('windDewChart').getContext('2d');
+            windDewChart = new Chart(ctxWindDew, {
+                type: 'line',
+                data: {
+                    labels: hourlyTimes,
+                    datasets: [
+                        { 
+                            label: 'ความเร็วลม (km/h)', 
+                            data: windSpeeds, 
+                            borderColor: '#818cf8', 
+                            backgroundColor: 'rgba(129, 140, 248, 0.1)', 
+                            borderWidth: 2, 
+                            fill: true, 
+                            yAxisID: 'y' 
+                        },
+                        { 
+                            label: 'จุดน้ำค้าง (°C)', 
+                            data: dewPoints, 
+                            borderColor: '#2dd4bf', 
+                            borderDash: [5, 5], 
+                            borderWidth: 2, 
+                            yAxisID: 'y1' 
+                        },
+                        // --- เพิ่มเส้นปริมาณฝนตรงนี้ ---
+                        { 
+                            label: 'ปริมาณฝน (mm)', 
+                            data: rainForecasts, 
+                            borderColor: '#0ea5e9', // สีฟ้าเข้ม
+                            backgroundColor: 'rgba(14, 165, 233, 0.4)', 
+                            borderWidth: 3, 
+                            fill: true,
+                            yAxisID: 'y2', // แยกแกน Y ไม่ให้ไปกวนสเกลของลม
+                            hidden: true // ตั้งค่าเป็น true เพื่อ "ซ่อน" ไว้ก่อนตอนเปิดเว็บ (คลิกเพื่อเปิดดูทีหลังได้)
+                        }
+                    ]
+                },
+                options: { 
+                    scales: { 
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {maxTicksLimit: 12} }, 
+                        y: { type: 'linear', display: true, position: 'left', title: {display:true, text:'ความเร็ว (km/h)'} },
+                        y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display:true, text:'อุณหภูมิ (°C)'} },
+                        y2: { type: 'linear', display: false, position: 'right', min: 0 } // แกนล่องหนสำหรับฝน
+                    },
+                    plugins: { 
+                        legend: { 
+                            labels: { color: '#e2e8f0' },
+                            onClick: function(e, legendItem, legend) {
+                                // เปิดการทำงานคลิกเพื่อซ่อน/แสดง ปกติของ Chart.js
+                                const index = legendItem.datasetIndex;
+                                const ci = legend.chart;
+                                if (ci.isDatasetVisible(index)) {
+                                    ci.hide(index);
+                                    legendItem.hidden = true;
+                                } else {
+                                    ci.show(index);
+                                    legendItem.hidden = false;
+                                }
+                            }
+                        } 
+                    },
+                    animation: false
+                }
+            });
+
+            // 3. Ranking Chart (Top 10 Wind Speed or Rain)
+            let sortByField = maxRain > 0 ? 'rain' : 'windSpeed';
+            let sortedDistricts = [...liveDistricts].sort((a, b) => b[sortByField] - a[sortByField]).slice(0, 10);
+            
+            const ctxRank = document.getElementById('rainRankChart').getContext('2d');
+            rankChart = new Chart(ctxRank, {
+                type: 'bar',
+                data: {
+                    labels: sortedDistricts.map(d => d.name),
+                    datasets: [
+                        { label: 'ปริมาณฝน (mm/h)', data: sortedDistricts.map(d => d.rain), backgroundColor: '#06b6d4', yAxisID: 'y' },
+                        { label: 'ความเร็วลม (km/h)', data: sortedDistricts.map(d => d.windSpeed), backgroundColor: '#3b82f6', yAxisID: 'y1' }
+                    ]
+                },
+                options: { 
+                    scales: { 
+                        x: { grid: { display: false } },
+                        y: { type: 'linear', position: 'left', title: {display:true, text:'ฝน (mm)'} },
+                        y1: { type: 'linear', position: 'right', grid: {drawOnChartArea: false}, title: {display:true, text:'ลม (km/h)'} }
+                    },
+                    plugins: { legend: { labels: { color: '#e2e8f0' } } },
+                    animation: false
                 }
             });
         }
 
-        // Boot
-        fetchAllData();
-        setInterval(fetchAllData, 900000); 
+        // Init
+        fetchRealTimeData();
+        setInterval(fetchRealTimeData, 900000); // 15 mins
     </script>
 </body>
 </html>
