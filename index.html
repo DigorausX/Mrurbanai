@@ -64,12 +64,12 @@
                         <span class="text-xs text-cyan-500 font-bold mb-1">mm/h</span>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-2 mt-auto relative z-10">
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">จุดน้ำค้าง</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-dew">--°C</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">อุณหภูมิ</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-temp">--°C</span></div>
-                    <div class="mini-card text-center relative"><span class="text-[10px] text-slate-500">ความชื้น</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-rh">--%</span>
-                        <div class="w-full bg-slate-800 h-1 mt-1 rounded"><div class="bg-cyan-500 h-1 rounded" id="b1-rh-bar" style="width: 0%"></div></div>
-                    </div>
+                <div class="grid grid-cols-5 gap-1 mt-auto relative z-10">
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ลม</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-wind">--</span></div>
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ทิศ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dir">--</span></div>
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">น้ำค้าง</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dew">--°C</span></div>
+                    <div class="mini-card text-center"><span class="text-[9px] text-slate-500">อุณหภูมิ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-temp">--°C</span></div>
+                    <div class="mini-card text-center relative"><span class="text-[9px] text-slate-500">ความชื้น</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-rh">--%</span>
                 </div>
             </div>
 
@@ -288,6 +288,8 @@
             document.getElementById('b1-temp').innerText = d1.temperature_2m + "°C";
             document.getElementById('b1-rh').innerText = d1.relative_humidity_2m + "%";
             document.getElementById('b1-rh-bar').style.width = d1.relative_humidity_2m + "%";
+            document.getElementById('b1-wind').innerText = d1.wind_speed_10m.toFixed(1) + "km/h";
+            document.getElementById('b1-dir').innerText = getWindDir(d1.wind_direction_10m);
 
             // --- UI UPDATE: BOX 2 (WIND) ---
             let d2 = apiData[curMaxWind.distIdx].current;
