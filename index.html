@@ -254,29 +254,47 @@
             // --- CHARTS ---
             if(rainFcstChart) { rainFcstChart.destroy(); windDewChart.destroy(); rankChart.destroy(); }
 
-            // 1. Rain Forecast Chart (Probability & Amount)
+// 1. Rain Forecast Chart (เฉพาะโอกาสเกิดฝน - Area Chart)
             let hourlyTimes = dataHourly.hourly.time.map(t => new Date(t).toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'}));
             let rainProbs = dataHourly.hourly.precipitation_probability;
-            let rainAmounts = dataHourly.hourly.precipitation;
 
             const ctxRain = document.getElementById('rainForecastChart').getContext('2d');
             rainFcstChart = new Chart(ctxRain, {
-                type: 'bar',
+                type: 'line', // เปลี่ยนจาก bar เป็น line
                 data: {
                     labels: hourlyTimes,
                     datasets: [
-                        { label: 'ปริมาณฝน (mm)', data: rainAmounts, type: 'line', borderColor: '#06b6d4', backgroundColor: '#06b6d4', borderWidth: 3, yAxisID: 'y1', tension: 0.3 },
-                        { label: 'โอกาสเกิดฝน (%)', data: rainProbs, backgroundColor: 'rgba(59, 130, 246, 0.4)', borderColor: '#3b82f6', borderWidth: 1, yAxisID: 'y' }
+                        { 
+                            label: 'โอกาสเกิดฝน (%)', 
+                            data: rainProbs, 
+                            borderColor: '#3b82f6', // เส้นขอบสีน้ำเงิน
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)', // พื้นหลังสีน้ำเงินโปร่งแสง
+                            borderWidth: 3, 
+                            fill: true, // เปิดการระบายสีใต้กราฟ
+                            tension: 0.4, // ทำให้เส้นโค้งสมูท (Smooth curve)
+                            pointBackgroundColor: '#06b6d4', // สีจุด
+                            pointBorderColor: '#fff',
+                            pointRadius: 3
+                        }
                     ]
                 },
                 options: { 
                     scales: { 
                         x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {maxTicksLimit: 12} }, 
-                        y: { type: 'linear', display: true, position: 'left', min: 0, max: 100, title: {display:true, text:'โอกาส (%)'} },
-                        y1: { type: 'linear', display: true, position: 'right', min: 0, grid: {drawOnChartArea: false}, title: {display:true, text:'ปริมาณ (mm)'} }
+                        y: { 
+                            type: 'linear', 
+                            display: true, 
+                            position: 'left', 
+                            min: 0, 
+                            max: 100, 
+                            title: {display:true, text:'โอกาส (%)'},
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
                     },
-                    plugins: { legend: { labels: { color: '#e2e8f0' } } },
-                    animation: false // ปิด Animation เล็กน้อยเพื่อให้ html2canvas ถ่ายภาพกราฟได้ติด 100%
+                    plugins: { 
+                        legend: { display: false } // ซ่อนป้ายกำกับด้านบนไปเลย เพราะมีข้อมูลเดียวแล้ว
+                    },
+                    animation: false
                 }
             });
 
