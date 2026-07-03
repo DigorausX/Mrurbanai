@@ -176,31 +176,23 @@
                 <div class="log-line text-cyan-600">[SYSTEM] Initialization sequence started...</div>
             </div>
         </div>
-<!-- กล่องที่ 5: PM2.5 MONITOR -->
-    <div class="glass-card p-4 border-l-4 border-l-red-500">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
-            <i class="fa-solid fa-lungs text-red-500 mr-2"></i> AIR QUALITY (PM2.5)
-        </h3>
-        <div class="flex items-center justify-between">
-            <span class="text-3xl font-bold text-white mono-text" id="pm25-val">--</span>
-            <span class="px-2 py-1 bg-red-900/50 text-red-200 text-[10px] rounded" id="pm25-status">LEVEL: --</span>
-        </div>
-        <div class="w-full bg-slate-800 h-2 mt-2 rounded-full overflow-hidden">
-            <div id="pm25-bar" class="h-full bg-red-500" style="width: 0%"></div>
-        </div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 p-4">
     </div>
 
-    <!-- กล่องที่ 6: ACCUMULATED RAIN (6HR) -->
-    <div class="glass-card p-4 border-l-4 border-l-yellow-500">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
-            <i class="fa-solid fa-water text-yellow-500 mr-2"></i> ACCUMULATED RAIN (6H)
-        </h3>
-        <div class="flex items-center justify-between">
-            <span class="text-3xl font-bold text-white mono-text" id="rain-6h-val">--</span>
-            <span class="text-[10px] text-yellow-500">mm</span>
-        </div>
-        <p class="text-[10px] text-slate-400 mt-2">ประเมินความเสี่ยงน้ำท่วมขัง: <span id="flood-risk" class="text-yellow-200 font-bold">--</span></p>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-4 p-4">
+    <div class="xl:col-span-2 glass-card p-4 h-[350px]">
+        <canvas id="rainForecastChart"></canvas>
     </div>
+    <div class="glass-card p-4 h-[350px]">
+        <canvas id="rainRankChart"></canvas>
+    </div>
+</div>
+
+<div class="px-4 pb-4">
+    <div class="glass-card p-3 border border-cyan-900 bg-black/60">
+        <div id="terminal-log" class="mono-text h-[100px] overflow-y-auto" style="font-size: 10px; line-height: 1.4;"></div>
+    </div>
+</div>
 </div>
     </main>
 
