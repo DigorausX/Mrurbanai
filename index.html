@@ -52,26 +52,28 @@
 
     <main class="w-full px-4 pb-6 flex-grow flex flex-col gap-4">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            
-            <div class="glass-card p-4 border-l-4 border-l-cyan-400 relative overflow-hidden flex flex-col justify-between">
-                <i class="fa-solid fa-cloud-showers-heavy absolute -top-4 -right-4 text-cyan-500/10 text-8xl transform -rotate-12"></i>
-                <div class="relative z-10">
-                    <p class="text-[10px] text-cyan-500 font-bold mb-1 uppercase tracking-widest"><i class="fa-solid fa-crosshairs mr-1"></i> LIVE: ปริมาณน้ำฝนปัจจุบันสูงสุด</p>
-                    <h3 class="text-xl font-bold text-white mb-2" id="b1-dist">--</h3>
-                    <div class="flex items-end gap-2 mb-3">
-                        <span class="text-4xl font-bold text-cyan-400 mono-text leading-none" id="b1-rain">0.0</span>
-                        <span class="text-xs text-cyan-500 font-bold mb-1">mm/h</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2 mt-auto relative z-10">
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">จุดน้ำค้าง</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-dew">--°C</span></div>
-                    <div class="mini-card text-center"><span class="text-[10px] text-slate-500">อุณหภูมิ</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-temp">--°C</span></div>
-                    <div class="mini-card text-center relative"><span class="text-[10px] text-slate-500">ความชื้น</span><br><span class="text-cyan-200 font-bold mono-text text-sm" id="b1-rh">--%</span>
-                        <div class="w-full bg-slate-800 h-1 mt-1 rounded"><div class="bg-cyan-500 h-1 rounded" id="b1-rh-bar" style="width: 0%"></div></div>
-                    </div>
-                </div>
+    <div class="glass-card p-4 border-l-4 border-l-cyan-400 relative overflow-hidden flex flex-col justify-between">
+        <i class="fa-solid fa-cloud-showers-heavy absolute -top-4 -right-4 text-cyan-500/10 text-8xl transform -rotate-12"></i><div class="relative z-10">
+        <p class="text-[10px] text-cyan-500 font-bold mb-1 uppercase tracking-widest"><i class="fa-solid fa-crosshairs mr-1"></i> LIVE: ฝนปัจจุบัน (Max: <span id="b1-dist">--</span>)</p>
+        <div class="flex justify-between items-center mb-2">
+            <div>
+                <h3 class="text-xs text-slate-500 font-bold">ฝนรวมเฉลี่ย กทม.</h3>
+                <span class="text-xl font-bold text-cyan-100 mono-text" id="b1-avg-rain">0.00</span> <span class="text-[10px] text-cyan-500">mm/h</span>
             </div>
+            <div class="text-right">
+                <h3 class="text-xs text-slate-500 font-bold">ฝนสูงสุด</h3>
+                <span class="text-xl font-bold text-cyan-400 mono-text" id="b1-rain">0.0</span> <span class="text-[10px] text-cyan-500">mm/h</span>
+            </div>
+        </div>
+    </div>
+    <div class="grid grid-cols-5 gap-1 mt-auto relative z-10">
+        <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ลม</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-wind">--</span></div>
+        <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ทิศ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dir">--</span></div>
+        <div class="mini-card text-center"><span class="text-[9px] text-slate-500">น้ำค้าง</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-dew">--</span></div>
+        <div class="mini-card text-center"><span class="text-[9px] text-slate-500">อุณหภูมิ</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-temp">--</span></div>
+        <div class="mini-card text-center"><span class="text-[9px] text-slate-500">ความชื้น</span><br><span class="text-cyan-200 font-bold mono-text text-xs" id="b1-rh">--</span></div>
+    </div>
+</div>
 
             <div class="glass-card p-4 border-l-4 border-l-blue-500 relative overflow-hidden flex flex-col justify-between">
                 <i class="fa-solid fa-wind absolute -top-4 -right-4 text-blue-500/10 text-8xl transform rotate-12"></i>
@@ -281,13 +283,19 @@
             });
 
             // --- UI UPDATE: BOX 1 (RAIN) ---
+// คำนวณค่าเฉลี่ยฝนทั้ง กทม.
+            let sumRain = 0;
+            apiData.forEach(site => sumRain += site.current.precipitation);
+            let avgRainBKK = (sumRain / 50).toFixed(2);
             let d1 = apiData[curMaxRain.distIdx].current;
-            document.getElementById('b1-dist').innerText = curMaxRain.val > 0 ? "เขต" + bkkDistricts[curMaxRain.distIdx].name : "ไม่มีฝนตก (CLEAR)";
-            document.getElementById('b1-rain').innerText = d1.precipitation;
+            document.getElementById('b1-dist').innerText = curMaxRain.val > 0 ? bkkDistricts[curMaxRain.distIdx].name : "CLEAR";
+            document.getElementById('b1-avg-rain').innerText = avgRainBKK; // อัปเดตค่าเฉลี่ย
+            document.getElementById('b1-rain').innerText = d1.precipitation; // อัปเดตค่าสูงสุด
             document.getElementById('b1-dew').innerText = d1.dew_point_2m + "°C";
             document.getElementById('b1-temp').innerText = d1.temperature_2m + "°C";
             document.getElementById('b1-rh').innerText = d1.relative_humidity_2m + "%";
-            document.getElementById('b1-rh-bar').style.width = d1.relative_humidity_2m + "%";
+            document.getElementById('b1-wind').innerText = d1.wind_speed_10m.toFixed(1) + "km/h";
+            document.getElementById('b1-dir').innerText = getWindDir(d1.wind_direction_10m);
 
             // --- UI UPDATE: BOX 2 (WIND) ---
             let d2 = apiData[curMaxWind.distIdx].current;
