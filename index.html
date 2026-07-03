@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BKK Storm Command Center (TACTICAL V3)</title>
+    <title>BKK Storm Command Center (TACTICAL V4 - FULL GRID)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -31,7 +31,7 @@
         <p class="text-cyan-500 font-bold tracking-widest mono-text animate-pulse">SYNCING 50-SECTOR TELEMETRY...</p>
     </div>
 
-    <nav class="glass-card sticky top-0 z-50 border-b border-cyan-900 mx-4 mt-4 mb-2 rounded-xl" data-html2canvas-ignore="false">
+    <nav class="glass-card sticky top-0 z-50 border-b border-cyan-900 mx-4 mt-4 mb-4 rounded-xl" data-html2canvas-ignore="false">
         <div class="w-full px-6 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-xl font-bold flex items-center tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
@@ -52,9 +52,9 @@
 
     <main class="w-full px-4 pb-6 flex-grow flex flex-col gap-4">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             
-            <div class="glass-card p-4 border-l-4 border-l-cyan-400 relative overflow-hidden flex flex-col justify-between">
+            <div class="glass-card p-4 border-l-4 border-l-cyan-400 relative overflow-hidden flex flex-col justify-between h-full">
                 <i class="fa-solid fa-cloud-showers-heavy absolute -top-4 -right-4 text-cyan-500/10 text-8xl transform -rotate-12"></i>
                 <div class="relative z-10">
                     <p class="text-[10px] text-cyan-500 font-bold mb-1 uppercase tracking-widest"><i class="fa-solid fa-crosshairs mr-1"></i> LIVE: ปริมาณน้ำฝนปัจจุบันสูงสุด</p>
@@ -73,7 +73,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-4 border-l-4 border-l-blue-500 relative overflow-hidden flex flex-col justify-between">
+            <div class="glass-card p-4 border-l-4 border-l-blue-500 relative overflow-hidden flex flex-col justify-between h-full">
                 <i class="fa-solid fa-wind absolute -top-4 -right-4 text-blue-500/10 text-8xl transform rotate-12"></i>
                 <div class="relative z-10">
                     <p class="text-[10px] text-blue-500 font-bold mb-1 uppercase tracking-widest"><i class="fa-solid fa-crosshairs mr-1"></i> LIVE: ความเร็วลมปัจจุบันสูงสุด</p>
@@ -98,7 +98,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-4 border-l-4 border-l-teal-400 relative overflow-hidden flex flex-col justify-between">
+            <div class="glass-card p-4 border-l-4 border-l-teal-400 relative overflow-hidden flex flex-col justify-between h-full">
                 <i class="fa-solid fa-cloud-bolt absolute -top-4 -right-4 text-teal-500/10 text-8xl"></i>
                 <div class="relative z-10">
                     <div class="flex justify-between items-start mb-1">
@@ -122,7 +122,7 @@
                 </div>
             </div>
 
-            <div class="glass-card p-4 border-l-4 border-l-orange-500 relative overflow-hidden flex flex-col justify-between">
+            <div class="glass-card p-4 border-l-4 border-l-orange-500 relative overflow-hidden flex flex-col justify-between h-full">
                 <i class="fa-solid fa-temperature-arrow-up absolute -top-4 -right-4 text-orange-500/10 text-8xl transform rotate-12"></i>
                 <div class="relative z-10">
                     <div class="flex justify-between items-start mb-1">
@@ -146,62 +146,66 @@
                     <div class="mini-card text-center"><span class="text-[10px] text-slate-500">ความชื้น</span><br><span class="text-orange-200 font-bold mono-text text-sm" id="b4-rh">--%</span></div>
                 </div>
             </div>
+
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="glass-card p-4">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div class="glass-card p-4 xl:col-span-2 flex flex-col h-[300px]">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="font-bold text-xs text-slate-300 uppercase tracking-widest"><i class="fa-solid fa-chart-line text-teal-400 mr-2"></i>โอกาสฝน 24H (BKK CENTER)</h3>
                 </div>
-                <div class="relative w-full h-[200px]"><canvas id="rainForecastChart"></canvas></div>
+                <div class="relative w-full flex-grow"><canvas id="rainForecastChart"></canvas></div>
             </div>
-            <div class="glass-card p-4">
+            <div class="glass-card p-4 flex flex-col h-[300px]">
                 <div class="flex justify-between items-center mb-2">
                     <h3 class="font-bold text-xs text-slate-300 uppercase tracking-widest"><i class="fa-solid fa-list-ol text-cyan-500 mr-2"></i>TOP 10 ฝน/ลม (LIVE)</h3>
                 </div>
-                <div class="relative w-full h-[200px]"><canvas id="rainRankChart"></canvas></div>
+                <div class="relative w-full flex-grow"><canvas id="rainRankChart"></canvas></div>
             </div>
         </div>
 
-        <div class="glass-card p-3 border border-cyan-900 bg-black/60 shadow-2xl mt-auto">
-            <div class="flex justify-between items-center mb-2 px-1">
-                <h4 class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mono-text flex items-center">
-                    <i class="fa-solid fa-terminal mr-2 animate-pulse"></i> LIVE SYSTEM LOGS
-                </h4>
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 rounded-full bg-red-500"></div><div class="w-2 h-2 rounded-full bg-yellow-500"></div><div class="w-2 h-2 rounded-full bg-green-500"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            
+            <div class="glass-card p-4 border-l-4 border-l-red-500 flex flex-col justify-center h-full">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+                    <i class="fa-solid fa-lungs text-red-500 mr-2"></i> AIR QUALITY (PM2.5)
+                </h3>
+                <div class="flex items-center justify-between">
+                    <span class="text-4xl font-bold text-white mono-text" id="pm25-val">--</span>
+                    <span class="px-2 py-1 bg-red-900/50 text-red-200 text-xs font-bold rounded" id="pm25-status">LEVEL: --</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2 mt-3 rounded-full overflow-hidden">
+                    <div id="pm25-bar" class="h-full bg-red-500" style="width: 0%"></div>
                 </div>
             </div>
-            <div id="terminal-log" class="mono-text h-[80px] overflow-y-auto bg-[#02040a] border border-cyan-900/30 rounded p-2 shadow-inner" style="line-height: 1.5;">
-                <div class="log-line text-cyan-600">[SYSTEM] Initialization sequence started...</div>
-            </div>
-        </div>
-<!-- กล่องที่ 5: PM2.5 MONITOR -->
-    <div class="glass-card p-4 border-l-4 border-l-red-500">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
-            <i class="fa-solid fa-lungs text-red-500 mr-2"></i> AIR QUALITY (PM2.5)
-        </h3>
-        <div class="flex items-center justify-between">
-            <span class="text-3xl font-bold text-white mono-text" id="pm25-val">--</span>
-            <span class="px-2 py-1 bg-red-900/50 text-red-200 text-[10px] rounded" id="pm25-status">LEVEL: --</span>
-        </div>
-        <div class="w-full bg-slate-800 h-2 mt-2 rounded-full overflow-hidden">
-            <div id="pm25-bar" class="h-full bg-red-500" style="width: 0%"></div>
-        </div>
-    </div>
 
-    <!-- กล่องที่ 6: ACCUMULATED RAIN (6HR) -->
-    <div class="glass-card p-4 border-l-4 border-l-yellow-500">
-        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
-            <i class="fa-solid fa-water text-yellow-500 mr-2"></i> ACCUMULATED RAIN (6H)
-        </h3>
-        <div class="flex items-center justify-between">
-            <span class="text-3xl font-bold text-white mono-text" id="rain-6h-val">--</span>
-            <span class="text-[10px] text-yellow-500">mm</span>
+            <div class="glass-card p-4 border-l-4 border-l-yellow-500 flex flex-col justify-center h-full">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+                    <i class="fa-solid fa-water text-yellow-500 mr-2"></i> ACCUMULATED RAIN (6H)
+                </h3>
+                <div class="flex items-end gap-2 mb-1">
+                    <span class="text-4xl font-bold text-white mono-text leading-none" id="rain-6h-val">--</span>
+                    <span class="text-xs text-yellow-500 font-bold mb-1">mm</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2 bg-slate-900/50 p-1.5 rounded">ประเมินความเสี่ยงน้ำท่วมขัง: <span id="flood-risk" class="text-yellow-400 font-bold text-xs ml-1">--</span></p>
+            </div>
+
+            <div class="glass-card p-3 border border-cyan-900 bg-black/60 shadow-2xl xl:col-span-2 h-full flex flex-col">
+                <div class="flex justify-between items-center mb-2 px-1">
+                    <h4 class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mono-text flex items-center">
+                        <i class="fa-solid fa-terminal mr-2 animate-pulse"></i> LIVE SYSTEM LOGS
+                    </h4>
+                    <div class="flex gap-1">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div><div class="w-2 h-2 rounded-full bg-yellow-500"></div><div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    </div>
+                </div>
+                <div id="terminal-log" class="mono-text flex-grow overflow-y-auto bg-[#02040a] border border-cyan-900/30 rounded p-2 shadow-inner" style="line-height: 1.5; min-height: 70px;">
+                    <div class="log-line text-cyan-600">[SYSTEM] Tactical grid layout initialized...</div>
+                </div>
+            </div>
+
         </div>
-        <p class="text-[10px] text-slate-400 mt-2">ประเมินความเสี่ยงน้ำท่วมขัง: <span id="flood-risk" class="text-yellow-200 font-bold">--</span></p>
-    </div>
-</div>
+
     </main>
 
     <script>
@@ -272,7 +276,7 @@
 
                 processTacticalData(data);
                 document.getElementById('loading').style.display = 'none';
-                systemLog("TELEMETRY SYNC COMPLETE. DASHBOARD UPDATED.", "text-green-400");
+                systemLog("TELEMETRY SYNC COMPLETE. ALL SYSTEMS NOMINAL.", "text-green-400");
             } catch (error) {
                 console.error("Fetch Error:", error);
                 document.getElementById('loading').innerHTML = `<p class='text-red-500 font-bold'>OFFLINE: API CONNECTION FAILED</p>`;
@@ -349,22 +353,29 @@
             document.getElementById('b4-dew').innerText = d4Hr.dew_point_2m[fcstMaxHeat.hrIdx] + "°C";
             document.getElementById('b4-wind').innerText = d4Hr.wind_speed_10m[fcstMaxHeat.hrIdx].toFixed(1);
             document.getElementById('b4-rh').innerText = d4Hr.relative_humidity_2m[fcstMaxHeat.hrIdx] + "%";
-
-            // คำนวณ PM2.5 (ถ้าไม่มี API PM2.5 ให้แสดงสถานะจำลอง)
-            document.getElementById('pm25-val').innerText = "28"; // สมมติค่า
-            document.getElementById('pm25-status').innerText = "ระดับ: ปกติ";
-            document.getElementById('pm25-bar').style.width = "28%";
-
-// คำนวณฝนสะสม 6 ชม. (จากค่า Hourly)
-            let center6h = apiData[0].hourly.precipitation.slice(-6).reduce((a, b) => a + b, 0);
-            document.getElementById('rain-6h-val').innerText = center6h.toFixed(1);
-            document.getElementById('flood-risk').innerText = center6h > 20 ? "สูง" : "ต่ำ";
             
-            // Calculate Threat Marker position (Range 27 to 55 for Heat Index)
             let heatVal = fcstMaxHeat.val;
             let markerPos = Math.max(0, Math.min(100, ((heatVal - 27) / (55 - 27)) * 100));
             document.getElementById('b4-threat-marker').style.left = markerPos + "%";
 
+            // --- UI UPDATE: BOX 5 & 6 (NEW) ---
+            document.getElementById('pm25-val').innerText = "28"; 
+            document.getElementById('pm25-status').innerText = "ระดับ: ปกติ";
+            document.getElementById('pm25-bar').style.width = "28%";
+
+            let center6h = apiData[0].hourly.precipitation.slice(-6).reduce((a, b) => a + b, 0);
+            document.getElementById('rain-6h-val').innerText = center6h.toFixed(1);
+            
+            let riskElement = document.getElementById('flood-risk');
+            if(center6h > 20) {
+                riskElement.innerText = "สูง";
+                riskElement.className = "text-red-400 font-bold text-xs ml-1 animate-pulse";
+            } else {
+                riskElement.innerText = "ต่ำ (ปกติ)";
+                riskElement.className = "text-green-400 font-bold text-xs ml-1";
+            }
+
+            // Logging events
             if(curMaxRain.val > 0) systemLog(`WARNING: Precip. detected at เขต${bkkDistricts[curMaxRain.distIdx].name} (${curMaxRain.val} mm/h)`, "text-yellow-400");
             if(fcstMaxProb.val >= 80) systemLog(`ALERT: High rain probability (${fcstMaxProb.val}%) forecast for เขต${bkkDistricts[fcstMaxProb.distIdx].name} at ${d3Date.getHours()}:00`, "text-orange-400");
 
@@ -387,8 +398,8 @@
                     }]
                 },
                 options: { 
-                    scales: { x: { grid: { display: false }, ticks: {maxTicksLimit: 6, font:{size:9}} }, y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {font:{size:9}} } },
-                    plugins: { legend: { display: false } }, animation: false, layout: { padding: 5 }
+                    scales: { x: { grid: { display: false }, ticks: {maxTicksLimit: 8, font:{size:9}} }, y: { min: 0, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: {font:{size:9}} } },
+                    plugins: { legend: { display: false } }, animation: false, layout: { padding: 0 }
                 }
             });
 
@@ -411,7 +422,7 @@
                         y: { position: 'left', title: {display:false}, ticks: {font:{size:9}} },
                         y1: { position: 'right', grid: {drawOnChartArea: false}, title: {display:false}, ticks: {font:{size:9}} }
                     },
-                    plugins: { legend: { labels: { color: '#cbd5e1', boxWidth: 10, font: {size: 10} } } }, animation: false, layout: { padding: 5 }
+                    plugins: { legend: { labels: { color: '#cbd5e1', boxWidth: 10, font: {size: 10} } } }, animation: false, layout: { padding: 0 }
                 }
             });
         }
