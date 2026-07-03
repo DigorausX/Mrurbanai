@@ -176,7 +176,32 @@
                 <div class="log-line text-cyan-600">[SYSTEM] Initialization sequence started...</div>
             </div>
         </div>
+<!-- กล่องที่ 5: PM2.5 MONITOR -->
+    <div class="glass-card p-4 border-l-4 border-l-red-500">
+        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+            <i class="fa-solid fa-lungs text-red-500 mr-2"></i> AIR QUALITY (PM2.5)
+        </h3>
+        <div class="flex items-center justify-between">
+            <span class="text-3xl font-bold text-white mono-text" id="pm25-val">--</span>
+            <span class="px-2 py-1 bg-red-900/50 text-red-200 text-[10px] rounded" id="pm25-status">LEVEL: --</span>
+        </div>
+        <div class="w-full bg-slate-800 h-2 mt-2 rounded-full overflow-hidden">
+            <div id="pm25-bar" class="h-full bg-red-500" style="width: 0%"></div>
+        </div>
+    </div>
 
+    <!-- กล่องที่ 6: ACCUMULATED RAIN (6HR) -->
+    <div class="glass-card p-4 border-l-4 border-l-yellow-500">
+        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">
+            <i class="fa-solid fa-water text-yellow-500 mr-2"></i> ACCUMULATED RAIN (6H)
+        </h3>
+        <div class="flex items-center justify-between">
+            <span class="text-3xl font-bold text-white mono-text" id="rain-6h-val">--</span>
+            <span class="text-[10px] text-yellow-500">mm</span>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-2">ประเมินความเสี่ยงน้ำท่วมขัง: <span id="flood-risk" class="text-yellow-200 font-bold">--</span></p>
+    </div>
+</div>
     </main>
 
     <script>
@@ -324,6 +349,16 @@
             document.getElementById('b4-dew').innerText = d4Hr.dew_point_2m[fcstMaxHeat.hrIdx] + "°C";
             document.getElementById('b4-wind').innerText = d4Hr.wind_speed_10m[fcstMaxHeat.hrIdx].toFixed(1);
             document.getElementById('b4-rh').innerText = d4Hr.relative_humidity_2m[fcstMaxHeat.hrIdx] + "%";
+
+            // คำนวณ PM2.5 (ถ้าไม่มี API PM2.5 ให้แสดงสถานะจำลอง)
+            document.getElementById('pm25-val').innerText = "28"; // สมมติค่า
+            document.getElementById('pm25-status').innerText = "ระดับ: ปกติ";
+            document.getElementById('pm25-bar').style.width = "28%";
+
+// คำนวณฝนสะสม 6 ชม. (จากค่า Hourly)
+            let center6h = apiData[0].hourly.precipitation.slice(-6).reduce((a, b) => a + b, 0);
+            document.getElementById('rain-6h-val').innerText = center6h.toFixed(1);
+            document.getElementById('flood-risk').innerText = center6h > 20 ? "สูง" : "ต่ำ";
             
             // Calculate Threat Marker position (Range 27 to 55 for Heat Index)
             let heatVal = fcstMaxHeat.val;
